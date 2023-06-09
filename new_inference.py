@@ -25,14 +25,14 @@ def load_model(model_path):
 
 
 def load_image_into_numpy_array(path):
-    """Load an image from file into a numpy array.
-    Puts image into numpy array to feed into tensorflow graph.
-    Note that by convention we put it into a numpy array with shape
-    (height, width, channels), where channels=3 for RGB.
+    """Carica un'immagine da un file in un array numpy.
+    Mette l'immagine in un array numpy da alimentare nel grafo tensorflow.
+    Nota che per convenzione la mettiamo in un array numpy con forma
+    (altezza, larghezza, canali), dove canali=3 per RGB.
     Args:
-      path: a file path (this can be local or on colossus)
+      path: un percorso del file (può essere locale o su Colossus)
     Returns:
-      uint8 numpy array with shape (img_height, img_width, 3)
+      array numpy uint8 con forma (altezza_img, larghezza_img, 3)
     """
     img_data = tf.io.gfile.GFile(path, 'rb').read()
     image = Image.open(BytesIO(img_data))
@@ -42,26 +42,26 @@ def load_image_into_numpy_array(path):
 
 
 def run_inference_for_single_image(model, image):
-    # The input needs to be a tensor, convert it using `tf.convert_to_tensor`.
+    # L'input deve essere un tensore, convertilo usando `tf.convert_to_tensor`.
     input_tensor = tf.convert_to_tensor(image)
-    # The model expects a batch of images, so add an axis with `tf.newaxis`.
+    # Il modello si aspetta un batch di immagini, quindi aggiungi un asse con `tf.newaxis`.
     input_tensor = input_tensor[tf.newaxis, ...]
 
     # Run inference
     output_dict = model(input_tensor)
 
-    # All outputs are batches tensors.
-    # Convert to numpy arrays, and take index [0] to remove the batch dimension.
-    # We're only interested in the first num_detections.
+    # Tutte le uscite sono tensori batch.
+    # Convertile in array numpy e prendi l'indice [0] per rimuovere la dimensione del batch.
+    # Siamo interessati solo ai primi num_detections
     num_detections = int(output_dict.pop('num_detections'))
     output_dict = {key: value[0, :num_detections].numpy()
                    for key, value in output_dict.items()}
     output_dict['num_detections'] = num_detections
 
-    # detection_classes should be ints.
+    # detection_classes dovrebbe essere di tipo int.
     output_dict['detection_classes'] = output_dict['detection_classes'].astype(np.int64)
 
-    # Handle models with masks:
+    # Gestisci i modelli con maschere:
     if 'detection_masks' in output_dict:
         # Reframe the the bbox mask to the image size.
         detection_masks_reframed = utils_ops.reframe_box_masks_to_image_masks(
@@ -83,7 +83,7 @@ def run_inference(model, category_index, image_path):
         i = 0
         for i_path in image_paths:
             image_np = load_image_into_numpy_array(i_path)
-            # Actual detection.
+            # Rilevazione effettiva.
             output_dict = run_inference_for_single_image(model, image_np)
 
             threshold = 0.5
@@ -93,14 +93,14 @@ def run_inference(model, category_index, image_path):
                 if output_dict['detection_scores'][x] > threshold:
                     current_label = category_index[output_dict['detection_classes'][x]]['name']
                     if current_label in found_objects:
-                        found_objects[current_label] += 1  # if it already exists, increment
+                        found_objects[current_label] += 1  # se esiste già, incrementa
                     else:
-                        found_objects[current_label] = 1  # if not, add and set to 1
+                        found_objects[current_label] = 1  #  altrimenti, aggiungi e imposta a 1
                     object_count += 1
             print(f'Total objects found in {i_path}: {object_count}')
             print(found_objects)
 
-            # Visualization of the results of a detection.
+            # Visualizzazione dei risultati della rilevazione.
             vis_util.visualize_boxes_and_labels_on_image_array(
                 image_np,
                 output_dict['detection_boxes'],
