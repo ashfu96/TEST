@@ -1,3 +1,4 @@
+#modificato
 import numpy as np
 import argparse
 import os
@@ -17,8 +18,6 @@ utils_ops.tf = tf.compat.v1
 # Patch the location of gfile
 tf.gfile = tf.io.gfile
 
-#lista vuota per salvare le predizioni
-prediction_results = []
 
 def load_model(model_path):
     model = tf.saved_model.load(model_path)
@@ -74,12 +73,13 @@ def run_inference_for_single_image(model, image):
     return output_dict
 
 
-def run_inference(model, category_index, image_path, save_output = False):
+def run_inference(model, category_index, image_path):
     if os.path.isdir(image_path):
         image_paths = []
         for file_extension in ('*.png', '*jpg'):
             image_paths.extend(glob.glob(os.path.join(image_path, file_extension)))
 
+        y_pred = []    #creo lista y_pred
         """add iterator here"""
         i = 0
         for i_path in image_paths:
@@ -101,7 +101,7 @@ def run_inference(model, category_index, image_path, save_output = False):
             print(f'Total objects found in {i_path}: {object_count}')
             print(found_objects)
             
-            
+            y_pred.append(found_objects) #aggiungo elementi
 
             # Visualizzazione dei risultati della rilevazione.
             vis_util.visualize_boxes_and_labels_on_image_array(
@@ -120,24 +120,9 @@ def run_inference(model, category_index, image_path, save_output = False):
             plt.savefig("outputs/detection_output{}.png".format(i))  # make sure to make an outputs folder
             i = i + 1
             
-
-    # else:
-    #     image_np = load_image_into_numpy_array(image_path)
-    #     # Actual detection.
-    #     output_dict = run_inference_for_single_image(model, image_np)
-    #     # Visualization of the results of a detection.
-    #     vis_util.visualize_boxes_and_labels_on_image_array(
-    #         image_np,
-    #         output_dict['detection_boxes'],
-    #         output_dict['detection_classes'],
-    #         output_dict['detection_scores'],
-    #         category_index,
-    #         instance_masks=output_dict.get('detection_masks_reframed', None),
-    #         use_normalized_coordinates=True,
-    #         line_thickness=8)
-    #     plt.imshow(image_np)
-    #     plt.show()
-
+        print("Lista degli oggetti trovati:")
+        for i, objects in enumerate(y_pred):
+            print(f"Immagine {i+1}: {objects}")   
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Detect objects inside webcam videostream')
@@ -148,7 +133,5 @@ if __name__ == '__main__':
 
     detection_model = load_model(args.model)
     category_index = label_map_util.create_category_index_from_labelmap(args.labelmap, use_display_name=True)
-    
+
     run_inference(detection_model, category_index, args.image_path)
-    
-    #print("\n le true label sono: ", prediction_results)
