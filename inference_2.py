@@ -155,6 +155,6 @@ if __name__ == '__main__':
 
     detection_model = load_model(args.model)
     category_index = label_map_util.create_category_index_from_labelmap(args.labelmap, use_display_name=True)
-    prediction_results = run_inference(detection_model, category_index, args.image_path, save_output=True)
+    prediction_results = run_inference(detection_model, category_index, args.image_path) #save_outputs=true
 
     run_inference(detection_model, category_index, args.image_path)
