@@ -125,6 +125,7 @@ def run_inference(model, category_index, image_path):
             plt.savefig("outputs/detection_output{}.png".format(i))  # make sure to make an outputs folder
             i = i + 1
             
+
     return prediction_results
 
     # else:
