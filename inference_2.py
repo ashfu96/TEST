@@ -74,7 +74,7 @@ def run_inference_for_single_image(model, image):
     return output_dict
 
 
-def run_inference(model, category_index, image_path, save_output=false):
+def run_inference(model, category_index, image_path, save_output=False):
     if os.path.isdir(image_path):
         image_paths = []
         for file_extension in ('*.png', '*jpg'):
@@ -155,6 +155,6 @@ if __name__ == '__main__':
 
     detection_model = load_model(args.model)
     category_index = label_map_util.create_category_index_from_labelmap(args.labelmap, use_display_name=True)
-    prediction_results = run_inference(detection_model, category_index, args.image_path, save_output=true) #save_outputs=true
+    prediction_results = run_inference(detection_model, category_index, args.image_path, save_output=True) #save_outputs=True
 
     run_inference(detection_model, category_index, args.image_path)
