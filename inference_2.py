@@ -107,7 +107,7 @@ def run_inference(model, category_index, image_path):
             'found_objects': found_objects
             })
             
-return prediction_results
+    return prediction_results
 
 
             # Visualizzazione dei risultati della rilevazione.
