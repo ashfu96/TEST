@@ -74,7 +74,7 @@ def run_inference_for_single_image(model, image):
     return output_dict
 
 
-def run_inference(model, category_index, image_path, save_output=False):
+def run_inference(model, category_index, image_path, save_output = False):
     if os.path.isdir(image_path):
         image_paths = []
         for file_extension in ('*.png', '*jpg'):
