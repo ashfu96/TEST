@@ -107,8 +107,6 @@ def run_inference(model, category_index, image_path, save_output = False):
                 'found_objects': found_objects
             })
             
-            print("\n le true label sono: ", prediction_results)
-            
 
             # Visualizzazione dei risultati della rilevazione.
             vis_util.visualize_boxes_and_labels_on_image_array(
@@ -160,3 +158,5 @@ if __name__ == '__main__':
     prediction_results = run_inference(detection_model, category_index, args.image_path, save_output=True) #save_outputs=True
 
     run_inference(detection_model, category_index, args.image_path)
+    
+    print("\n le true label sono: ", prediction_results)
