@@ -101,11 +101,6 @@ def run_inference(model, category_index, image_path, save_output = False):
             print(f'Total objects found in {i_path}: {object_count}')
             print(found_objects)
             
-            prediction_results.append({
-                'image_path': i_path,
-                #'object_count': object_count,
-                'found_objects': found_objects
-            })
             
 
             # Visualizzazione dei risultati della rilevazione.
@@ -125,8 +120,6 @@ def run_inference(model, category_index, image_path, save_output = False):
             plt.savefig("outputs/detection_output{}.png".format(i))  # make sure to make an outputs folder
             i = i + 1
             
-
-    return prediction_results
 
     # else:
     #     image_np = load_image_into_numpy_array(image_path)
@@ -155,8 +148,7 @@ if __name__ == '__main__':
 
     detection_model = load_model(args.model)
     category_index = label_map_util.create_category_index_from_labelmap(args.labelmap, use_display_name=True)
-    prediction_results = run_inference(detection_model, category_index, args.image_path, save_output=True) #save_outputs=True
-
+    
     run_inference(detection_model, category_index, args.image_path)
     
-    print("\n le true label sono: ", prediction_results)
+    #print("\n le true label sono: ", prediction_results)
