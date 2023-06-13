@@ -102,13 +102,11 @@ def run_inference(model, category_index, image_path):
             print(found_objects)
             
             prediction_results.append({
-            'image_path': i_path,
-            'object_count': object_count,
-            'found_objects': found_objects
+                'image_path': i_path,
+                'object_count': object_count,
+                'found_objects': found_objects
             })
             
-    return prediction_results
-
 
             # Visualizzazione dei risultati della rilevazione.
             vis_util.visualize_boxes_and_labels_on_image_array(
@@ -126,6 +124,9 @@ def run_inference(model, category_index, image_path):
             # plt.show()
             plt.savefig("outputs/detection_output{}.png".format(i))  # make sure to make an outputs folder
             i = i + 1
+            
+    return prediction_results
+
     # else:
     #     image_np = load_image_into_numpy_array(image_path)
     #     # Actual detection.
