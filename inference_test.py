@@ -120,6 +120,7 @@ def run_inference(model, category_index, image_path):
     #return per predizioni
     return found_objects, output_dict
 ###################################################################
+
 def inference_metrics(model, category_index, image_path):
     if os.path.isdir(image_path):
         image_paths = []
@@ -127,6 +128,7 @@ def inference_metrics(model, category_index, image_path):
             image_paths.extend(glob.glob(os.path.join(image_path, file_extension)))
 
         i = 0
+        all_labels = []  # Nuova lista per le label di tutte le immagini
         for i_path in image_paths:
             image_np = load_image_into_numpy_array(i_path)
             output_dict = run_inference_for_single_image(model, image_np)
@@ -151,6 +153,8 @@ def inference_metrics(model, category_index, image_path):
                         max_confidence = output_dict['detection_scores'][x]
                         selected_label = current_label
 
+                    all_labels.append(current_label)  # Aggiunta della label alla lista
+
             print(f'Total objects found in {i_path}: {object_count}')
             print(found_objects)
 
@@ -171,10 +175,7 @@ def inference_metrics(model, category_index, image_path):
                 plt.savefig(f"outputs/detection_output_{selected_label}_{i}.png")
                 i += 1
 
-    return found_objects, output_dict
-
-
-
+    return all_labels, output_dict
 
 
 ###################################################################
