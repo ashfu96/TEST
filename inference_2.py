@@ -103,9 +103,11 @@ def run_inference(model, category_index, image_path, save_output = False):
             
             prediction_results.append({
                 'image_path': i_path,
-                'object_count': object_count,
+                #'object_count': object_count,
                 'found_objects': found_objects
             })
+            
+            print("\n le true label sono: ", prediction_results)
             
 
             # Visualizzazione dei risultati della rilevazione.
