@@ -118,7 +118,7 @@ def run_inference(model, category_index, image_path):
             i = i + 1
   
   #return per predizioni
-  return found_objects, output_dict   
+  return found_objects, output_dict
 
 ###################################################################
 
