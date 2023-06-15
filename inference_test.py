@@ -18,6 +18,8 @@ utils_ops.tf = tf.compat.v1
 # Patch the location of gfile
 tf.gfile = tf.io.gfile
 
+#definisco soglia di confidence (threshold)
+CONFIDENCE = 0.3
 
 def load_model(model_path):
     model = tf.saved_model.load(model_path)
@@ -67,7 +69,7 @@ def run_inference_for_single_image(model, image):
         detection_masks_reframed = utils_ops.reframe_box_masks_to_image_masks(
             output_dict['detection_masks'], output_dict['detection_boxes'],
             image.shape[0], image.shape[1])
-        detection_masks_reframed = tf.cast(detection_masks_reframed > 0.5, tf.uint8)
+        detection_masks_reframed = tf.cast(detection_masks_reframed > CONFIDENCE, tf.uint8)
         output_dict['detection_masks_reframed'] = detection_masks_reframed.numpy()
 
     return output_dict
@@ -86,7 +88,7 @@ def run_inference(model, category_index, image_path):
             # Rilevazione effettiva.
             output_dict = run_inference_for_single_image(model, image_np)
 
-            threshold = 0.5
+            threshold = CONFIDENCE
             found_objects = {}
             object_count = 0
             for x, (y_min, x_min, y_max, x_max) in enumerate(output_dict['detection_boxes']):
@@ -109,7 +111,7 @@ def run_inference(model, category_index, image_path):
                 category_index,
                 instance_masks=output_dict.get('detection_masks_reframed', None),
                 use_normalized_coordinates=True,
-                line_thickness=8)
+                line_thickness=7)
             """The existing plt lines do not work on local pc as they are not setup for GUI
                 Use plt.savefig() to save the results instead and view them in a folder"""
             plt.imshow(image_np)
@@ -118,7 +120,7 @@ def run_inference(model, category_index, image_path):
             i = i + 1
   
     #return per predizioni
-    return found_objects, output_dict
+    #return found_objects, output_dict
 ###################################################################
 
 # def inference_metrics(model, category_index, image_path):
