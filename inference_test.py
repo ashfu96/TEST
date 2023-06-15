@@ -121,61 +121,61 @@ def run_inference(model, category_index, image_path):
     return found_objects, output_dict
 ###################################################################
 
-def inference_metrics(model, category_index, image_path):
-    if os.path.isdir(image_path):
-        image_paths = []
-        for file_extension in ('*.png', '*.jpg'):
-            image_paths.extend(glob.glob(os.path.join(image_path, file_extension)))
+# def inference_metrics(model, category_index, image_path):
+#     if os.path.isdir(image_path):
+#         image_paths = []
+#         for file_extension in ('*.png', '*.jpg'):
+#             image_paths.extend(glob.glob(os.path.join(image_path, file_extension)))
 
-        i = 0
-        all_labels = []  # Nuova lista per le label di tutte le immagini
-        for i_path in image_paths:
-            image_np = load_image_into_numpy_array(i_path)
-            output_dict = run_inference_for_single_image(model, image_np)
+#         i = 0
+#         all_labels = []  # Nuova lista per le label di tutte le immagini
+#         for i_path in image_paths:
+#             image_np = load_image_into_numpy_array(i_path)
+#             output_dict = run_inference_for_single_image(model, image_np)
 
-            threshold = 0.5
-            found_objects = {}
-            object_count = 0
-            max_confidence = -1
-            selected_label = None
+#             threshold = 0.5
+#             found_objects = {}
+#             object_count = 0
+#             max_confidence = -1
+#             selected_label = None
 
-            for x, (y_min, x_min, y_max, x_max) in enumerate(output_dict['detection_boxes']):
-                if output_dict['detection_scores'][x] > threshold:
-                    current_label = category_index[output_dict['detection_classes'][x]]['name']
-                    if current_label in found_objects:
-                        found_objects[current_label] += 1
-                    else:
-                        found_objects[current_label] = 1
-                    object_count += 1
+#             for x, (y_min, x_min, y_max, x_max) in enumerate(output_dict['detection_boxes']):
+#                 if output_dict['detection_scores'][x] > threshold:
+#                     current_label = category_index[output_dict['detection_classes'][x]]['name']
+#                     if current_label in found_objects:
+#                         found_objects[current_label] += 1
+#                     else:
+#                         found_objects[current_label] = 1
+#                     object_count += 1
 
-                    # Aggiornamento dell'etichetta selezionata se il punteggio di confidenza è superiore
-                    if output_dict['detection_scores'][x] > max_confidence:
-                        max_confidence = output_dict['detection_scores'][x]
-                        selected_label = current_label
+#                     # Aggiornamento dell'etichetta selezionata se il punteggio di confidenza è superiore
+#                     if output_dict['detection_scores'][x] > max_confidence:
+#                         max_confidence = output_dict['detection_scores'][x]
+#                         selected_label = current_label
 
-                    all_labels.append(current_label)  # Aggiunta della label alla lista
+#                     all_labels.append(current_label)  # Aggiunta della label alla lista
 
-            print(f'Total objects found in {i_path}: {object_count}')
-            print(found_objects)
+#             print(f'Total objects found in {i_path}: {object_count}')
+#             print(found_objects)
 
-            # Visualizzazione dei risultati della rilevazione.
-            vis_util.visualize_boxes_and_labels_on_image_array(
-                image_np,
-                output_dict['detection_boxes'],
-                output_dict['detection_classes'],
-                output_dict['detection_scores'],
-                category_index,
-                instance_masks=output_dict.get('detection_masks_reframed', None),
-                use_normalized_coordinates=True,
-                line_thickness=8)
+#             # Visualizzazione dei risultati della rilevazione.
+#             vis_util.visualize_boxes_and_labels_on_image_array(
+#                 image_np,
+#                 output_dict['detection_boxes'],
+#                 output_dict['detection_classes'],
+#                 output_dict['detection_scores'],
+#                 category_index,
+#                 instance_masks=output_dict.get('detection_masks_reframed', None),
+#                 use_normalized_coordinates=True,
+#                 line_thickness=8)
 
-            # Salvataggio dell'immagine con l'etichetta selezionata
-            if selected_label is not None:
-                plt.imshow(image_np)
-                plt.savefig(f"outputs/detection_output_{selected_label}_{i}.png")
-                i += 1
+#             # Salvataggio dell'immagine con l'etichetta selezionata
+#             if selected_label is not None:
+#                 plt.imshow(image_np)
+#                 plt.savefig(f"outputs/detection_output_{selected_label}_{i}.png")
+#                 i += 1
 
-    return all_labels, output_dict
+#     return all_labels, output_dict
 
 
 ###################################################################
