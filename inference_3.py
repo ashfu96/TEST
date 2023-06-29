@@ -125,96 +125,55 @@ def run_inference(model, category_index, image_path):
 
 def draw_boxes_on_image(image_np, detection_boxes, detection_classes, detection_scores, category_index,
                         instance_masks=None, use_normalized_coordinates=True, min_score_thresh=0.3):
-    colors = []
-    # Convert detection boxes to absolute coordinates if normalized
+    class_colors = {
+        1: (255, 0, 0),   # Crepa: Rosso
+        2: (0, 255, 0),   # Corrosione: Verde
+        3: (0, 0, 255),   # Chiazze: Blu
+        4: (255, 255, 0), # Superficie_bucherellata: Giallo
+        5: (255, 0, 255), # Scaglie_laminate: Magenta
+        6: (0, 255, 255)  # Graffi: Ciano
+    }
+
     if use_normalized_coordinates:
         height, width, _ = image_np.shape
         detection_boxes = np.multiply(detection_boxes, [height, width, height, width])
 
     for box, cls, score in zip(detection_boxes, detection_classes, detection_scores):
-        colors.append((random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)))
-    # Loop through each detected object
-    for box, cls, score, color in zip(detection_boxes, detection_classes, detection_scores, colors):
-        # Check if the detection score is above the minimum threshold
         if score >= min_score_thresh:
             ymin, xmin, ymax, xmax = box.astype(int)
-
-            # Draw the bounding box on the image
+            class_label = category_index[cls]['name']
+            color = class_colors[cls]
             cv2.rectangle(image_np, (xmin, ymin), (xmax, ymax), color, 2)
-
-            # Get the class label
-            class_label = category_index[cls]['name']
-
-            # Format the label with the class name and score
             label = f'{class_label}: {round(score * 100, 2)}%'
-
-            # Adjust the font size dynamically to fit within the bounding box
             font_scale = 0.56
             thickness = 1
-
-            # Calculate the initial width and height of the label
             (label_width, label_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
 
             while label_width > (xmax - xmin) or label_height > (ymax - ymin):
                 font_scale -= 0.1
-
-                # Break the loop if font size becomes too small
                 if font_scale <= 0.4:
                     break
-
-                # Recalculate the label width and height
                 (label_width, label_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
 
-            # Calculate the position of the label
             label_origin = (xmin, ymin - 10) if ymin >= label_height + 10 else (xmin, ymin + label_height + 10)
-
-            # Draw the label background
             cv2.rectangle(image_np, (xmin, label_origin[1] - label_height),
                           (xmin + label_width, label_origin[1]), color, cv2.FILLED)
-
-            # Draw the label text
             cv2.putText(image_np, label, (label_origin[0] + 5, label_origin[1] - 5),
-                        cv2.FONT_ITALIC, font_scale, (0, 0, 0), thickness)
+                        cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 0, 0), thickness)
 
-    for box, cls, score, color in zip(detection_boxes, detection_classes, detection_scores, colors):
-        # Check if the detection score is above the minimum threshold
-        if score >= min_score_thresh:
-            ymin, xmin, ymax, xmax = box.astype(int)
+    legend_height = 30
+    legend_width = image_np.shape[1]
+    legend_img = np.ones((legend_height, legend_width, 3), dtype=np.uint8) * 255
 
-            # Get the class label
-            class_label = category_index[cls]['name']
-
-            # Format the label with the class name and score
-            label = f'{class_label}: {round(score * 100, 2)}%'
-
-            # Adjust the font size dynamically to fit within the bounding box
-            font_scale = 0.56
-            thickness = 1
-
-            # Calculate the initial width and height of the label
-            (label_width, label_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
-
-            while label_width > (xmax - xmin) or label_height > (ymax - ymin):
-                font_scale -= 0.1
-
-                # Break the loop if font size becomes too small
-                if font_scale <= 0.4:
-                    break
-
-                # Recalculate the label width and height
-                (label_width, label_height), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
-
-            # Calculate the position of the label
-            label_origin = (xmin, ymin - 10) if ymin >= label_height + 10 else (xmin, ymin + label_height + 10)
-
-            # Draw the label background
-            cv2.rectangle(image_np, (xmin, label_origin[1] - label_height),
-                          (xmin + label_width, label_origin[1]), color, cv2.FILLED)
-
-            # Draw the label text
-            cv2.putText(image_np, label, (label_origin[0] + 5, label_origin[1] - 5),
-                        cv2.FONT_ITALIC, font_scale, (0, 0, 0), thickness)
-
+    for idx, cls in enumerate(category_index):
+        class_label = category_index[cls]['name']
+        color = class_colors[cls]
+        cv2.rectangle(legend_img, (idx * (legend_width // len(category_index)), 0),
+                      ((idx + 1) * (legend_width // len(category_index)), legend_height), color, cv2.FILLED)
+        cv2.putText(legend_img, class_label, (idx * (legend_width // len(category_index)) + 5, legend_height - 5),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
+                    
+    image_np = np.concatenate((image_np, legend_img), axis=0)
 
     return image_np
 
